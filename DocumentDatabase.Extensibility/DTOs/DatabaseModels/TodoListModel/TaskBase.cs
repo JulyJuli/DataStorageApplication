@@ -1,5 +1,8 @@
-﻿namespace DocumentDatabase.Extensibility.DatabaseModels.TodoListModel
+﻿using System;
+
+namespace DocumentDatabase.Extensibility.DatabaseModels.TodoListModel
 {
+    [Serializable]
     public abstract class TaskBase : ModelIdentifier
     {
         public TaskBase() { }

@@ -8,8 +8,6 @@ namespace DocumentDatabase.Extensibility.Helpers
 
         FileMode DefineFileMode(bool appendFileMode);
 
-        string FormFullPathWitoutExtention(string folderPath, string fileName);
-
-        string GetPathToDestinationFolder(string databaseFolderName = "database");
+        string GetPathToDestinationFolder(string fileExtention, string modelType, string databaseFolderName = "database");
     }
 }

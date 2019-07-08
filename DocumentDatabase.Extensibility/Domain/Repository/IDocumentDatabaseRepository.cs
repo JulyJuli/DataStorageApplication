@@ -12,7 +12,7 @@ namespace DocumentDatabase.Extensibility.Domain.Repository
 
         bool UpdateDatabaseFiles(string id, TModel model, ModificationType modificationType);
 
-        IDictionary<string, TModel> GetAllFiles(DatabaseOptions databaseOptions);
+        IList<TModel> GetAllFiles(DatabaseOptions databaseOptions);
 
         void WriteFile(string id, TModel model);
 

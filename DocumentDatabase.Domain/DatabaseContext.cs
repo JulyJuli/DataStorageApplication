@@ -45,12 +45,12 @@ namespace DocumentDatabase.Domain
 
         public string GetDatabaseFolderPath()
         {
-            return this.fileProcessingHelper.GetPathToDestinationFolder(this.DatabaseFolderName);
+            return this.fileProcessingHelper.GetPathToDestinationFolder(Extention, typeof(TModel).Name, DatabaseFolderName);
         }
 
         public string GetFullFilePath(string fileName)
         {
-            return this.fileProcessingHelper.FormFullPathWitoutExtention(this.GetDatabaseFolderPath(), fileName);
+            return this.fileProcessingHelper.FormFullPath(this.GetDatabaseFolderPath(), fileName, Extention);
         }
     }
 }

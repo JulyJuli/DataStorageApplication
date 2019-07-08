@@ -8,12 +8,7 @@ namespace DocumentDatabase.Service.Helpers
     {
         public string FormFullPath(string folderPath, string fileName, string fileExtention)
         {
-            return string.Format("{0}.{1}", (object)Path.Combine(folderPath, fileName), (object)fileExtention);
-        }
-
-        public string FormFullPathWitoutExtention(string folderPath, string fileName)
-        {
-            return string.Format(Path.Combine(folderPath, fileName));
+            return string.Format("{0}.{1}", (object)Path.Combine(folderPath, fileName), fileExtention);
         }
 
         public FileMode DefineFileMode(bool appendFileMode)
@@ -21,9 +16,9 @@ namespace DocumentDatabase.Service.Helpers
             return appendFileMode ? FileMode.Append : FileMode.Create;
         }
 
-        public string GetPathToDestinationFolder(string databaseFolderName)
+        public string GetPathToDestinationFolder(string fileExtention, string modelType, string databaseFolderName)
         {
-            return Path.Combine(this.GetPathToDocumentFolder(), databaseFolderName);
+            return Path.Combine(this.GetPathToDocumentFolder(), databaseFolderName, fileExtention, modelType);
         }
 
         private string GetPathToDocumentFolder()

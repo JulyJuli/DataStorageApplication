@@ -12,7 +12,7 @@ namespace DocumentDatabase.Service.Services
     {
         private readonly IDocumentDatabaseRepository<TModel> fileRepository;
         private readonly IFileProcessingHelper fileProcessingHelper;
-        private IDictionary<string, TModel> databaseFiles;
+        private IList<TModel> databaseFiles;
 
         public DocumentDatabaseService(
           IDocumentDatabaseRepository<TModel> fileRepository,
@@ -20,53 +20,56 @@ namespace DocumentDatabase.Service.Services
         {
             this.fileRepository = fileRepository;
             this.fileProcessingHelper = fileProcessingHelper;
-            databaseFiles = new Dictionary<string, TModel>();
+            databaseFiles = new List<TModel>();
         }
 
         public TModel GetFile(string fileName)
         {
-            TModel model;
-            if (databaseFiles.TryGetValue(fileName, out model))
-                return model;
-            return default(TModel);
+            return GetDatabaseFile(fileName);
         }
 
         public string CreateFile(TModel fileModel)
         {
-            string file = fileRepository.CreateFile(fileModel);
-            if (fileModel != null)
-                databaseFiles.Add(file, fileModel);
-            return file;
+            string filePath = fileRepository.CreateFile(fileModel);
+            if (fileModel != null && !string.IsNullOrEmpty(filePath))
+                databaseFiles.Add(fileModel);
+            return filePath;
         }
 
         public bool DeleteFile(string fileName)
         {
-            TModel model;
-            databaseFiles.TryGetValue(fileName, out model);
+            TModel model = GetDatabaseFile(fileName);
             if (model == null || !this.fileRepository.UpdateDatabaseFiles(fileName, model, ModificationType.DELETE))
                 return false;
-            databaseFiles.Remove(fileName);
+
+            databaseFiles.Remove(model);
             return true;
         }
 
         public bool UpdateFile(string fileName, TModel model)
         {
-            TModel fileModel;
-            databaseFiles.TryGetValue(fileName, out fileModel);
-            if (fileModel == null)
+            TModel existingModel = GetDatabaseFile(fileName);
+            if (existingModel == null || model == null)
                 return false;
-            databaseFiles[fileName] = model;
+
             fileRepository.WriteFile(fileName, model);
+            databaseFiles.Add(model);
             return true;
         }
 
         public IList<TModel> GetAllFiles(DatabaseOptions databaseOptions)
         {
-            List<TModel> modelList = new List<TModel>();
-            databaseFiles = this.fileRepository.GetAllFiles(databaseOptions);
-            foreach (TModel model in this.databaseFiles.Values)
-                modelList.Add(model);
-            return modelList;
+            this.databaseFiles = fileRepository.GetAllFiles(databaseOptions);
+            return databaseFiles;
+        }
+
+        private TModel GetDatabaseFile(string fileName) {
+            foreach (var file in databaseFiles)
+            {
+                if (file.Id == fileName)
+                    return file;
+            }
+            return null;
         }
     }
 }

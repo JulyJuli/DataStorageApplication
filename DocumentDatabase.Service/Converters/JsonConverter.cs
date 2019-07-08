@@ -10,8 +10,6 @@ namespace DocumentDatabase.Service.Converters
     {
         private readonly JsonSerializer serializer = new JsonSerializer();
 
-        public string Extention => ".json";
-
         public JsonConverter()
         {
             serializer = new JsonSerializer();

@@ -15,17 +15,17 @@ namespace DocumentDatabase.Domain.Repository
         where TModel : ModelIdentifier
     {
         private readonly IFileProcessingHelper fileProcessingHelper;
-        private readonly IDatabaseContext<TModel> dataStoreApplicationContext;
+        private readonly IDatabaseContext<TModel> databaseContext;
         private readonly IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever;
         private IModelConverterBase<TModel> modelConverter;
         private readonly ReaderWriterLock readerWriterLock;
 
         public DocumentDatabaseRepository(
-          IDatabaseContext<TModel> dataStoreApplicationContext,
+          IDatabaseContext<TModel> databaseContext,
           IFileProcessingHelper fileProcessingHelper,
           IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever)
         {
-            this.dataStoreApplicationContext = dataStoreApplicationContext;
+            this.databaseContext = databaseContext;
             this.fileProcessingHelper = fileProcessingHelper;
             this.fileExtentionFactoryRetriever = fileExtentionFactoryRetriever;
             readerWriterLock = new ReaderWriterLock();
@@ -33,58 +33,65 @@ namespace DocumentDatabase.Domain.Repository
 
         public bool DeleteFile(string fileName)
         {
-            string path = this.fileProcessingHelper.FormFullPathWitoutExtention(this.fileProcessingHelper.GetPathToDestinationFolder("database"), fileName);
+            string path = this.fileProcessingHelper.FormFullPath(
+                fileProcessingHelper.GetPathToDestinationFolder(databaseContext.Extention, typeof(TModel).Name, databaseContext.DatabaseFolderName),
+                fileName,
+                databaseContext.Extention);
+
             if (!File.Exists(path))
                 return false;
+
             File.Delete(path);
             return true;
         }
 
         public void WriteFile(string fileName, TModel model)
         {
-            string fullFilePath = this.dataStoreApplicationContext.GetFullFilePath(fileName);
+            string fullFilePath = this.databaseContext.GetFullFilePath(fileName);
             if (File.Exists(fullFilePath))
             {
                 try
                 {
-                    this.readerWriterLock.AcquireWriterLock(-1);
-                    this.WriteFile(model, fullFilePath);
+                    readerWriterLock.AcquireWriterLock(-1);
+                    WriteFile(model, fullFilePath);
                 }
                 finally
                 {
-                    this.readerWriterLock.ReleaseWriterLock();
+                    readerWriterLock.ReleaseWriterLock();
                 }
             }
             else
-                this.WriteFile(model, fullFilePath);
+                WriteFile(model, fullFilePath);
         }
 
-        public IDictionary<string, TModel> GetAllFiles(DatabaseOptions databaseOptions)
+        public IList<TModel> GetAllFiles(DatabaseOptions databaseOptions)
         {
-            this.dataStoreApplicationContext.Connect(databaseOptions);
-            return this.ReadAllExistingFiles(this.fileProcessingHelper.GetPathToDestinationFolder(this.dataStoreApplicationContext.DatabaseFolderName), this.dataStoreApplicationContext.Extention);
+            this.databaseContext.Connect(databaseOptions);
+            return this.ReadAllExistingFiles(this.fileProcessingHelper.GetPathToDestinationFolder(
+                databaseContext.Extention, typeof(TModel).Name, this.databaseContext.DatabaseFolderName), this.databaseContext.Extention);
         }
 
-        private IDictionary<string, TModel> ReadAllExistingFiles(
+        private IList<TModel> ReadAllExistingFiles(
           string databaseForlderPath,
           string databaseExtention)
         {
-            this.modelConverter = this.fileExtentionFactoryRetriever.LoadRequiredConverter(databaseExtention);
-            Dictionary<string, TModel> dictionary = new Dictionary<string, TModel>();
+            modelConverter = this.fileExtentionFactoryRetriever.LoadRequiredConverter(databaseExtention);
+
+            var fileSet = new List<TModel>();
             if (Directory.Exists(databaseForlderPath))
             {
-                foreach (string enumerateFile in Directory.EnumerateFiles(databaseForlderPath, "*" + this.dataStoreApplicationContext.Extention))
+                foreach (string enumerateFile in Directory.EnumerateFiles(databaseForlderPath, "*" + this.databaseContext.Extention))
                 {
                     using (StreamReader streamReader = new StreamReader(enumerateFile))
                     {
                         TModel model = this.modelConverter.Deserialize(streamReader);
-                        dictionary.Add(Path.GetFileName(enumerateFile), model);
+                        fileSet.Add( model);
                     }
                 }
             }
             else
-                this.CreateEmptyFolder(databaseForlderPath);
-            return (IDictionary<string, TModel>)dictionary;
+                CreateEmptyFolder(databaseForlderPath);
+            return fileSet;
         }
 
         public bool UpdateDatabaseFiles(
@@ -95,10 +102,10 @@ namespace DocumentDatabase.Domain.Repository
             switch (modificationType)
             {
                 case ModificationType.UPDATE:
-                    this.WriteFile(fileName, model);
+                    WriteFile(fileName, model);
                     break;
                 case ModificationType.DELETE:
-                    return this.DeleteFile(fileName);
+                    return DeleteFile(fileName);
             }
             return true;
         }
@@ -116,10 +123,14 @@ namespace DocumentDatabase.Domain.Repository
 
         public string CreateFile(TModel fileModel)
         {
-            string emptyFile = this.dataStoreApplicationContext.CreateEmptyFile(fileModel.Id);
             if (fileModel != null)
-                this.WriteFile(emptyFile, fileModel);
-            return emptyFile;
+            {
+                string emptyFile = this.databaseContext.CreateEmptyFile(fileModel.Id);
+
+                WriteFile(fileModel, emptyFile);
+                return emptyFile;
+            }
+            return string.Empty;
         }
     }
 }
