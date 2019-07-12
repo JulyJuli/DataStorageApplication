@@ -5,6 +5,7 @@ using DocumentDatabase.Extensibility.Domain.Repository;
 using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Factories;
 using DocumentDatabase.Extensibility.Helpers;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -18,9 +19,12 @@ namespace DocumentDatabase.Domain.Repository
         private readonly IDatabaseContext<TModel> databaseContext;
         private readonly IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever;
         private IModelConverterBase<TModel> modelConverter;
+        private readonly DatabaseOptions databaseOptions;
+
         private readonly ReaderWriterLock readerWriterLock;
 
         public DocumentDatabaseRepository(
+          IOptions<DatabaseOptions> databaseOptions, 
           IDatabaseContext<TModel> databaseContext,
           IFileProcessingHelper fileProcessingHelper,
           IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever)
@@ -28,15 +32,18 @@ namespace DocumentDatabase.Domain.Repository
             this.databaseContext = databaseContext;
             this.fileProcessingHelper = fileProcessingHelper;
             this.fileExtentionFactoryRetriever = fileExtentionFactoryRetriever;
+            this.databaseOptions = databaseOptions.Value;
+
+            modelConverter = fileExtentionFactoryRetriever.LoadRequiredConverter(this.databaseOptions.DatabaseExtention);
             readerWriterLock = new ReaderWriterLock();
         }
 
         public bool DeleteFile(string fileName)
         {
-            string path = this.fileProcessingHelper.FormFullPath(
-                fileProcessingHelper.GetPathToDestinationFolder(databaseContext.Extention, typeof(TModel).Name, databaseContext.DatabaseFolderName),
+            string path = fileProcessingHelper.FormFullPath(
+                fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName),
                 fileName,
-                databaseContext.Extention);
+                databaseOptions.DatabaseExtention);
 
             if (!File.Exists(path))
                 return false;
@@ -47,7 +54,7 @@ namespace DocumentDatabase.Domain.Repository
 
         public void WriteFile(string fileName, TModel model)
         {
-            string fullFilePath = this.databaseContext.GetFullFilePath(fileName);
+            string fullFilePath = this.databaseContext.GetFullFilePath(databaseOptions, fileName);
             if (File.Exists(fullFilePath))
             {
                 try
@@ -64,23 +71,21 @@ namespace DocumentDatabase.Domain.Repository
                 WriteFile(model, fullFilePath);
         }
 
-        public IList<TModel> GetAllFiles(DatabaseOptions databaseOptions)
+        public IList<TModel> GetAllFiles()
         {
-            this.databaseContext.Connect(databaseOptions);
-            return this.ReadAllExistingFiles(this.fileProcessingHelper.GetPathToDestinationFolder(
-                databaseContext.Extention, typeof(TModel).Name, this.databaseContext.DatabaseFolderName), this.databaseContext.Extention);
+            return ReadAllExistingFiles(fileProcessingHelper.GetPathToDestinationFolder(
+                databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName), databaseOptions.DatabaseExtention);
         }
 
         private IList<TModel> ReadAllExistingFiles(
           string databaseForlderPath,
           string databaseExtention)
         {
-            modelConverter = this.fileExtentionFactoryRetriever.LoadRequiredConverter(databaseExtention);
 
             var fileSet = new List<TModel>();
             if (Directory.Exists(databaseForlderPath))
             {
-                foreach (string enumerateFile in Directory.EnumerateFiles(databaseForlderPath, "*" + this.databaseContext.Extention))
+                foreach (string enumerateFile in Directory.EnumerateFiles(databaseForlderPath, "*" + databaseOptions.DatabaseExtention))
                 {
                     using (StreamReader streamReader = new StreamReader(enumerateFile))
                     {
@@ -113,7 +118,7 @@ namespace DocumentDatabase.Domain.Repository
         private void WriteFile(TModel model, string fullPath)
         {
             using (StreamWriter streamWriter = new StreamWriter(fullPath, false))
-                this.modelConverter.Serialize(streamWriter, model);
+                modelConverter.Serialize(streamWriter, model);
         }
 
         private DirectoryInfo CreateEmptyFolder(string databaseFolderPath)
@@ -125,7 +130,7 @@ namespace DocumentDatabase.Domain.Repository
         {
             if (fileModel != null)
             {
-                string emptyFile = this.databaseContext.CreateEmptyFile(fileModel.Id);
+                string emptyFile = databaseContext.CreateEmptyFile(fileModel.Id, databaseOptions);
 
                 WriteFile(fileModel, emptyFile);
                 return emptyFile;

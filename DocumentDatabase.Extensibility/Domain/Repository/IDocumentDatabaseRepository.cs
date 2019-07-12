@@ -1,5 +1,4 @@
 ﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Helpers;
 using System.Collections.Generic;
 
@@ -12,7 +11,7 @@ namespace DocumentDatabase.Extensibility.Domain.Repository
 
         bool UpdateDatabaseFiles(string id, TModel model, ModificationType modificationType);
 
-        IList<TModel> GetAllFiles(DatabaseOptions databaseOptions);
+        IList<TModel> GetAllFiles();
 
         void WriteFile(string id, TModel model);
 

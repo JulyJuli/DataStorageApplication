@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DocumentDatabase.Startup\DocumentDatabase.Startup.csproj" />
+    <ProjectReference Include="..\DocumentDatabase.Startup\DocumentDatabase.Module.csproj" />
   </ItemGroup>
 
 </Project>

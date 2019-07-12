@@ -12,7 +12,7 @@ using DocumentDatabase.Service.Helpers;
 using DocumentDatabase.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DataStorageApplication.Starup
+namespace DataStorageApplication.Module
 {
     public static class DocumentDatabaseStartup
     {

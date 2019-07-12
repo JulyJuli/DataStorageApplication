@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DocumentDatabase.Extensibility.DatabaseModels.TodoListModel;
 using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.DTOs.DatabaseModels.GiftCards;
 using DocumentDatabase.Extensibility.Service;
@@ -11,19 +10,17 @@ namespace DataStorageApplication.WebApi.Controllers
     [Route("api/[controller]")]
     public class DataStoreApplicationController: Controller
     {
-        private readonly DatabaseOptions databaseOptions;
         private readonly IDocumentDatabaseService<GiftCardDto> fileService;
 
-        public DataStoreApplicationController(IOptions<DatabaseOptions> databaseOptions, IDocumentDatabaseService<GiftCardDto> fileService)
+        public DataStoreApplicationController(IDocumentDatabaseService<GiftCardDto> fileService)
         {
             this.fileService = fileService;
-            this.databaseOptions = databaseOptions.Value;
         }
 
         [HttpGet]
         public IList<GiftCardDto> GetAll()
         {
-            return fileService.GetAllFiles(databaseOptions);
+            return fileService.GetAllFiles();
         }
 
         [HttpGet("{fileName}")]

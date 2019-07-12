@@ -1,6 +1,5 @@
 ﻿using DocumentDatabase.Extensibility.DatabaseModels;
 using DocumentDatabase.Extensibility.Domain.Repository;
-using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Helpers;
 using DocumentDatabase.Extensibility.Service;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ namespace DocumentDatabase.Service.Services
     {
         private readonly IDocumentDatabaseRepository<TModel> fileRepository;
         private readonly IFileProcessingHelper fileProcessingHelper;
+
         private IList<TModel> databaseFiles;
 
         public DocumentDatabaseService(
@@ -57,9 +57,9 @@ namespace DocumentDatabase.Service.Services
             return true;
         }
 
-        public IList<TModel> GetAllFiles(DatabaseOptions databaseOptions)
+        public IList<TModel> GetAllFiles()
         {
-            this.databaseFiles = fileRepository.GetAllFiles(databaseOptions);
+            this.databaseFiles = fileRepository.GetAllFiles();
             return databaseFiles;
         }
 

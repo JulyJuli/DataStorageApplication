@@ -1,4 +1,4 @@
-﻿using DataStorageApplication.Starup;
+﻿using DataStorageApplication.Module;
 using DocumentDatabase.Extensibility.DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

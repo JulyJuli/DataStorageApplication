@@ -20,21 +20,11 @@ namespace DocumentDatabase.Domain
             this.fileProcessingHelper = fileProcessingHelper;
             this.fileExtentionFactoryRetriever = fileExtentionFactoryRetriever;
         }
-
-        public string Extention { get; private set; }
-
-        public string DatabaseFolderName { get; private set; }
-
-        public void Connect(DatabaseOptions databaseOptions)
+        
+        public string CreateEmptyFile(string databaseFileName, DatabaseOptions databaseOptions)
         {
-            this.Extention = databaseOptions.DatabaseExtention;
-            this.DatabaseFolderName = databaseOptions.FolderName;
-        }
-
-        public string CreateEmptyFile(string databaseFileName)
-        {
-            string databaseFolderPath = this.GetDatabaseFolderPath();
-            string path = this.fileProcessingHelper.FormFullPath(this.GetDatabaseFolderPath(), databaseFileName, this.Extention);
+            string databaseFolderPath = this.GetDatabaseFolderPath(databaseOptions);
+            string path = this.fileProcessingHelper.FormFullPath(databaseFolderPath, databaseFileName, databaseOptions.DatabaseExtention);
             if (!Directory.Exists(databaseFolderPath))
             {
                 Directory.CreateDirectory(databaseFolderPath);
@@ -43,14 +33,14 @@ namespace DocumentDatabase.Domain
             return path;
         }
 
-        public string GetDatabaseFolderPath()
+        public string GetDatabaseFolderPath(DatabaseOptions databaseOptions)
         {
-            return this.fileProcessingHelper.GetPathToDestinationFolder(Extention, typeof(TModel).Name, DatabaseFolderName);
+            return this.fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName);
         }
 
-        public string GetFullFilePath(string fileName)
+        public string GetFullFilePath(DatabaseOptions databaseOptions, string fileName)
         {
-            return this.fileProcessingHelper.FormFullPath(this.GetDatabaseFolderPath(), fileName, Extention);
+            return this.fileProcessingHelper.FormFullPath(this.GetDatabaseFolderPath(databaseOptions), fileName, databaseOptions.DatabaseExtention);
         }
     }
 }
