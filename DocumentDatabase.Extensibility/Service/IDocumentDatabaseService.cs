@@ -1,16 +1,15 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
+﻿using System.Collections.Generic;
 using DocumentDatabase.Extensibility.DTOs;
-using System.Collections.Generic;
 
 namespace DocumentDatabase.Extensibility.Service
 {
     public interface IDocumentDatabaseService<TModel>
         where TModel : ModelIdentifier
     {
-        IList<TModel> GetAllFiles();
-        TModel GetFile(string fileName);
-        string CreateFile(TModel file);
-        bool UpdateFile(string fileName, TModel file);
-        bool DeleteFile(string fileName);
+        IList<TModel> GetAll();
+        TModel Get(string fileName);
+        string Create(TModel file);
+        bool Update(string fileName, TModel file);
+        bool Delete(string fileName);
     }
 }

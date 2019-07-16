@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using DocumentDatabase.Extensibility.DTOs;
-using DocumentDatabase.Extensibility.DTOs.DatabaseModels.GiftCards;
+using DataStorageApplication.WebApi.DatabaseModels.GiftCards;
 using DocumentDatabase.Extensibility.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace DataStorageApplication.WebApi.Controllers
 {
@@ -20,32 +18,32 @@ namespace DataStorageApplication.WebApi.Controllers
         [HttpGet]
         public IList<GiftCardDto> GetAll()
         {
-            return fileService.GetAllFiles();
+            return fileService.GetAll();
         }
 
         [HttpGet("{fileName}")]
         public GiftCardDto Get(string fileName)
         {
-            return fileService.GetFile(fileName);
+            return fileService.Get(fileName);
         }
 
 
         [HttpPost]
         public string Post([FromBody]GiftCardDto fileModel)
         {
-            return fileService.CreateFile(fileModel);
+            return fileService.Create(fileModel);
         }
 
         [HttpPut("{fileName}")]
         public void Put(string fileName, [FromBody]GiftCardDto category)
         {
-            fileService.UpdateFile(fileName, category);
+            fileService.Update(fileName, category);
         }
 
         [HttpDelete("{fileName}")]
         public bool Delete(string fileName)
         {
-            return fileService.DeleteFile(fileName);
+            return fileService.Delete(fileName);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using DocumentDatabase.Extensibility.Converters.ModelConverters;
-using DocumentDatabase.Extensibility.DatabaseModels;
 using DocumentDatabase.Extensibility.Domain;
 using DocumentDatabase.Extensibility.Domain.Repository;
 using DocumentDatabase.Extensibility.DTOs;
@@ -17,8 +16,7 @@ namespace DocumentDatabase.Domain.Repository
     {
         private readonly IFileProcessingHelper fileProcessingHelper;
         private readonly IDatabaseContext<TModel> databaseContext;
-        private readonly IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever;
-        private IModelConverterBase<TModel> modelConverter;
+        private readonly IModelConverterBase<TModel> modelConverter;
         private readonly DatabaseOptions databaseOptions;
 
         private readonly ReaderWriterLock readerWriterLock;
@@ -27,14 +25,13 @@ namespace DocumentDatabase.Domain.Repository
           IOptions<DatabaseOptions> databaseOptions, 
           IDatabaseContext<TModel> databaseContext,
           IFileProcessingHelper fileProcessingHelper,
-          IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever)
+          IFileExtensionFactoryRetriever<TModel> fileExtensionFactoryRetriever)
         {
             this.databaseContext = databaseContext;
             this.fileProcessingHelper = fileProcessingHelper;
-            this.fileExtentionFactoryRetriever = fileExtentionFactoryRetriever;
             this.databaseOptions = databaseOptions.Value;
 
-            modelConverter = fileExtentionFactoryRetriever.LoadRequiredConverter(this.databaseOptions.DatabaseExtention);
+            modelConverter = fileExtensionFactoryRetriever.LoadRequiredConverter(this.databaseOptions.DatabaseExtention);
             readerWriterLock = new ReaderWriterLock();
         }
 
@@ -73,19 +70,16 @@ namespace DocumentDatabase.Domain.Repository
 
         public IList<TModel> GetAllFiles()
         {
-            return ReadAllExistingFiles(fileProcessingHelper.GetPathToDestinationFolder(
-                databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName), databaseOptions.DatabaseExtention);
+            return ReadAllExistingFiles(fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName));
         }
 
-        private IList<TModel> ReadAllExistingFiles(
-          string databaseForlderPath,
-          string databaseExtention)
+        private IList<TModel> ReadAllExistingFiles(string databaseFolderPath)
         {
 
             var fileSet = new List<TModel>();
-            if (Directory.Exists(databaseForlderPath))
+            if (Directory.Exists(databaseFolderPath))
             {
-                foreach (string enumerateFile in Directory.EnumerateFiles(databaseForlderPath, "*" + databaseOptions.DatabaseExtention))
+                foreach (string enumerateFile in Directory.EnumerateFiles(databaseFolderPath, "*" + databaseOptions.DatabaseExtention))
                 {
                     using (StreamReader streamReader = new StreamReader(enumerateFile))
                     {
@@ -95,7 +89,7 @@ namespace DocumentDatabase.Domain.Repository
                 }
             }
             else
-                CreateEmptyFolder(databaseForlderPath);
+                CreateEmptyFolder(databaseFolderPath);
             return fileSet;
         }
 
@@ -121,9 +115,9 @@ namespace DocumentDatabase.Domain.Repository
                 modelConverter.Serialize(streamWriter, model);
         }
 
-        private DirectoryInfo CreateEmptyFolder(string databaseFolderPath)
+        private void CreateEmptyFolder(string databaseFolderPath)
         {
-            return Directory.CreateDirectory(databaseFolderPath);
+            Directory.CreateDirectory(databaseFolderPath);
         }
 
         public string CreateFile(TModel fileModel)

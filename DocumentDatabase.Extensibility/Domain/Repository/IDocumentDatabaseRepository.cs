@@ -1,6 +1,6 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.Helpers;
+﻿using DocumentDatabase.Extensibility.Helpers;
 using System.Collections.Generic;
+using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Extensibility.Domain.Repository
 {

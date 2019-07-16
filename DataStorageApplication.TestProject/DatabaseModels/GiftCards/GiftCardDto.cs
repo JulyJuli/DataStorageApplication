@@ -1,6 +1,6 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
+﻿using DocumentDatabase.Extensibility.DTOs;
 
-namespace DocumentDatabase.Extensibility.DTOs.DatabaseModels.GiftCards
+namespace DataStorageApplication.TestProject.DatabaseModels.GiftCards
 {
     public class GiftCardDto : ModelIdentifier
     {

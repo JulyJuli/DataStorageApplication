@@ -1,4 +1,4 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
+﻿using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Extensibility.Converters.ModelConverters
 {

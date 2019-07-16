@@ -1,7 +1,5 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.Domain;
+﻿using DocumentDatabase.Extensibility.Domain;
 using DocumentDatabase.Extensibility.DTOs;
-using DocumentDatabase.Extensibility.Factories;
 using DocumentDatabase.Extensibility.Helpers;
 using System.IO;
 
@@ -11,19 +9,15 @@ namespace DocumentDatabase.Domain
         where TModel : ModelIdentifier
     {
         private IFileProcessingHelper fileProcessingHelper;
-        private readonly IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever;
 
-        public DatabaseContext(
-          IFileProcessingHelper fileProcessingHelper,
-          IFileExtentionFactoryRetriever<TModel> fileExtentionFactoryRetriever)
+        public DatabaseContext(IFileProcessingHelper fileProcessingHelper)
         {
             this.fileProcessingHelper = fileProcessingHelper;
-            this.fileExtentionFactoryRetriever = fileExtentionFactoryRetriever;
         }
         
         public string CreateEmptyFile(string databaseFileName, DatabaseOptions databaseOptions)
         {
-            string databaseFolderPath = this.GetDatabaseFolderPath(databaseOptions);
+            string databaseFolderPath = GetDatabaseFolderPath(databaseOptions);
             string path = this.fileProcessingHelper.FormFullPath(databaseFolderPath, databaseFileName, databaseOptions.DatabaseExtention);
             if (!Directory.Exists(databaseFolderPath))
             {
@@ -33,14 +27,14 @@ namespace DocumentDatabase.Domain
             return path;
         }
 
-        public string GetDatabaseFolderPath(DatabaseOptions databaseOptions)
-        {
-            return this.fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName);
-        }
-
         public string GetFullFilePath(DatabaseOptions databaseOptions, string fileName)
         {
-            return this.fileProcessingHelper.FormFullPath(this.GetDatabaseFolderPath(databaseOptions), fileName, databaseOptions.DatabaseExtention);
+            return this.fileProcessingHelper.FormFullPath(GetDatabaseFolderPath(databaseOptions), fileName, databaseOptions.DatabaseExtention);
+        }
+        
+        private string GetDatabaseFolderPath(DatabaseOptions databaseOptions)
+        {
+            return this.fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName);
         }
     }
 }

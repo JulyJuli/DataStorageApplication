@@ -1,11 +1,11 @@
 ﻿using DocumentDatabase.Extensibility.Converters.ModelConverters;
-using DocumentDatabase.Extensibility.DatabaseModels;
+using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Extensibility.Factories
 {
-    public interface IFileExtentionFactoryRetriever<TModel>
+    public interface IFileExtensionFactoryRetriever<TModel>
         where TModel : ModelIdentifier
     {
-        IModelConverterBase<TModel> LoadRequiredConverter(string extention);
+        IModelConverterBase<TModel> LoadRequiredConverter(string extension);
     }
 }

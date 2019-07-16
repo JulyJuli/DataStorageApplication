@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DocumentDatabase.Extensibility.DatabaseModels
+namespace DocumentDatabase.Extensibility.DTOs
 {
     public class ModelIdentifier
     {

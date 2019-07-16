@@ -1,5 +1,4 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.DTOs;
+﻿using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Extensibility.Domain
 {
@@ -7,8 +6,6 @@ namespace DocumentDatabase.Extensibility.Domain
         where TModel : ModelIdentifier
     {
         string CreateEmptyFile(string databaseFileName, DatabaseOptions databaseOptions);
-
-        string GetDatabaseFolderPath(DatabaseOptions databaseOptions);
 
         string GetFullFilePath(DatabaseOptions databaseOptions, string fileName);
     }

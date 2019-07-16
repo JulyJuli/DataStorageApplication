@@ -1,14 +1,14 @@
 ﻿using DocumentDatabase.Extensibility.Converters.ModelConverters;
-using DocumentDatabase.Extensibility.DatabaseModels;
 using Newtonsoft.Json;
 using System.IO;
+using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Service.Converters
 {
-    public class JsonConverter<TModel> : IJsonConverter<TModel>, IModelConverterBase<TModel>
+    public class JsonConverter<TModel> : IJsonConverter<TModel>
      where TModel : ModelIdentifier
     {
-        private readonly JsonSerializer serializer = new JsonSerializer();
+        private readonly JsonSerializer serializer;
 
         public JsonConverter()
         {

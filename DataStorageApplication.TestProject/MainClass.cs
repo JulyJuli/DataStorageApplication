@@ -1,12 +1,12 @@
-﻿using DataStorageApplication.Module;
-using DocumentDatabase.Extensibility.DatabaseModels.TodoListModel;
-using DocumentDatabase.Extensibility.DTOs;
+﻿using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using DataStorageApplication.TestProject.DatabaseModels.TodoListModel;
+using DocumentDatabase.Module;
 
 namespace DataStorageApplication.TestProject
 {
@@ -19,8 +19,8 @@ namespace DataStorageApplication.TestProject
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var databaseConfiguration = serviceProvider.GetService<IDocumentDatabaseService<Task>>();
 
-            var firstModel = databaseConfiguration.CreateFile(new Task ("first task", "test description", false, false, new DateTime().Date,"comment"));
-            var allFiles = databaseConfiguration.GetAllFiles();
+            var firstModel = databaseConfiguration.Create(new Task ("first task", "test description", false, false, new DateTime().Date,"comment"));
+            var allFiles = databaseConfiguration.GetAll();
         }
 
         private static void ConfigureServices(IServiceCollection serviceCollection)
@@ -32,7 +32,6 @@ namespace DataStorageApplication.TestProject
               .AddEnvironmentVariables()
               .Build();
 
-            serviceCollection.AddOptions();
             serviceCollection.Configure<DatabaseOptions>(configuration.GetSection("DatabaseConfiguration"));
             serviceCollection.ConfigureDocumentDatabase();
         }

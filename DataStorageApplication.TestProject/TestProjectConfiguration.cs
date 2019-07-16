@@ -1,5 +1,4 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.DTOs;
+﻿using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Service;
 using Microsoft.Extensions.Options;
 

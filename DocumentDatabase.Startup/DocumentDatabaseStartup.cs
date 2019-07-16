@@ -12,16 +12,17 @@ using DocumentDatabase.Service.Helpers;
 using DocumentDatabase.Service.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DataStorageApplication.Module
+namespace DocumentDatabase.Module
 {
     public static class DocumentDatabaseStartup
     {
         public static IServiceCollection ConfigureDocumentDatabase(this IServiceCollection services)
         {
+            services.AddOptions();
             return services
                     .AddTransient(typeof(IDocumentDatabaseRepository<>), typeof(DocumentDatabaseRepository<>))
                     .AddSingleton(typeof(IDatabaseContext<>), typeof(DatabaseContext<>))
-                    .AddSingleton(typeof(IFileExtentionFactoryRetriever<>),typeof(FileExtentionFactoryRetriever<>))
+                    .AddSingleton(typeof(IFileExtensionFactoryRetriever<>),typeof(FileExtensionFactoryRetriever<>))
                     .AddSingleton(typeof(IDocumentDatabaseService<>), typeof(DocumentDatabaseService<>))
                     .AddSingleton(typeof(IJsonConverter<>), typeof(JsonConverter<>))
                     .AddSingleton(typeof(IXmlConverter<>), typeof(XmlConverter<>))

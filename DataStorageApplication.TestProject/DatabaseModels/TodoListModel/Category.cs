@@ -1,8 +1,7 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels.TodoListModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace ToDoList.Extensibility.Models
+namespace DataStorageApplication.TestProject.DatabaseModels.TodoListModel
 {
     [Serializable]
     public class Category : TaskBase

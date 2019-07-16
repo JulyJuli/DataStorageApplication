@@ -1,8 +1,9 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using DocumentDatabase.Extensibility.Domain.Repository;
+﻿using DocumentDatabase.Extensibility.Domain.Repository;
 using DocumentDatabase.Extensibility.Helpers;
 using DocumentDatabase.Extensibility.Service;
 using System.Collections.Generic;
+using System.Linq;
+using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Service.Services
 {
@@ -10,25 +11,21 @@ namespace DocumentDatabase.Service.Services
         where TModel : ModelIdentifier
     {
         private readonly IDocumentDatabaseRepository<TModel> fileRepository;
-        private readonly IFileProcessingHelper fileProcessingHelper;
 
         private IList<TModel> databaseFiles;
 
-        public DocumentDatabaseService(
-          IDocumentDatabaseRepository<TModel> fileRepository,
-          IFileProcessingHelper fileProcessingHelper)
+        public DocumentDatabaseService(IDocumentDatabaseRepository<TModel> fileRepository)
         {
             this.fileRepository = fileRepository;
-            this.fileProcessingHelper = fileProcessingHelper;
             databaseFiles = new List<TModel>();
         }
 
-        public TModel GetFile(string fileName)
+        public TModel Get(string fileName)
         {
             return GetDatabaseFile(fileName);
         }
 
-        public string CreateFile(TModel fileModel)
+        public string Create(TModel fileModel)
         {
             string filePath = fileRepository.CreateFile(fileModel);
             if (fileModel != null && !string.IsNullOrEmpty(filePath))
@@ -36,7 +33,7 @@ namespace DocumentDatabase.Service.Services
             return filePath;
         }
 
-        public bool DeleteFile(string fileName)
+        public bool Delete(string fileName)
         {
             TModel model = GetDatabaseFile(fileName);
             if (model == null || !this.fileRepository.UpdateDatabaseFiles(fileName, model, ModificationType.DELETE))
@@ -46,7 +43,7 @@ namespace DocumentDatabase.Service.Services
             return true;
         }
 
-        public bool UpdateFile(string fileName, TModel model)
+        public bool Update(string fileName, TModel model)
         {
             TModel existingModel = GetDatabaseFile(fileName);
             if (existingModel == null || model == null)
@@ -57,19 +54,14 @@ namespace DocumentDatabase.Service.Services
             return true;
         }
 
-        public IList<TModel> GetAllFiles()
+        public IList<TModel> GetAll()
         {
             this.databaseFiles = fileRepository.GetAllFiles();
             return databaseFiles;
         }
 
         private TModel GetDatabaseFile(string fileName) {
-            foreach (var file in databaseFiles)
-            {
-                if (file.Id == fileName)
-                    return file;
-            }
-            return null;
+           return databaseFiles.FirstOrDefault(file => file.Id == fileName);
         }
     }
 }

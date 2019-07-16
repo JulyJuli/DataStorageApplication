@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DocumentDatabase.Extensibility.DatabaseModels.TodoListModel
+namespace DataStorageApplication.WebApi.DatabaseModels.TodoListModel
 {
     [Serializable]
     public class Task : TaskBase

@@ -1,5 +1,5 @@
-﻿using DocumentDatabase.Extensibility.DatabaseModels;
-using System.IO;
+﻿using System.IO;
+using DocumentDatabase.Extensibility.DTOs;
 
 namespace DocumentDatabase.Extensibility.Converters.ModelConverters
 {
