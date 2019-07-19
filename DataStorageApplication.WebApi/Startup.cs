@@ -1,9 +1,11 @@
-﻿using DocumentDatabase.Extensibility.DTOs;
+﻿using DataStorageApplication.WebApi.ExceptionMiddlewares;
+using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Module;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataStorageApplication.WebApi
 {
@@ -33,6 +35,7 @@ namespace DataStorageApplication.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<InvalidExtentionExceptionMiddleware>();
             app.UseMvc();
         }
     }

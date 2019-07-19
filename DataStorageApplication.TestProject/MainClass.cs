@@ -15,12 +15,21 @@ namespace DataStorageApplication.TestProject
         static void Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var databaseConfiguration = serviceProvider.GetService<IDocumentDatabaseService<Task>>();
+            try
+            {
+                ConfigureServices(serviceCollection);
+                var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var firstModel = databaseConfiguration.Create(new Task ("first task", "test description", false, false, new DateTime().Date,"comment"));
-            var allFiles = databaseConfiguration.GetAll();
+                var databaseConfiguration = serviceProvider.GetService<IDocumentDatabaseService<Task>>();
+
+                var firstModel = databaseConfiguration.Create(new Task("first task", "test description", false, false, new DateTime().Date, "comment"));
+                var allFiles = databaseConfiguration.GetAll();
+            }
+            catch(InvalidDataException exception) {
+                Console.WriteLine(exception.Message);
+                return;
+            }
+            Console.ReadKey();
         }
 
         private static void ConfigureServices(IServiceCollection serviceCollection)

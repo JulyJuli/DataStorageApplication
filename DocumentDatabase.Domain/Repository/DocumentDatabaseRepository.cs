@@ -5,6 +5,7 @@ using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Extensibility.Factories;
 using DocumentDatabase.Extensibility.Helpers;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -16,10 +17,11 @@ namespace DocumentDatabase.Domain.Repository
     {
         private readonly IFileProcessingHelper fileProcessingHelper;
         private readonly IDatabaseContext<TModel> databaseContext;
-        private readonly IModelConverterBase<TModel> modelConverter;
         private readonly DatabaseOptions databaseOptions;
 
         private readonly ReaderWriterLock readerWriterLock;
+
+        private IModelConverterBase<TModel> modelConverter;
 
         public DocumentDatabaseRepository(
           IOptions<DatabaseOptions> databaseOptions, 
@@ -30,9 +32,9 @@ namespace DocumentDatabase.Domain.Repository
             this.databaseContext = databaseContext;
             this.fileProcessingHelper = fileProcessingHelper;
             this.databaseOptions = databaseOptions.Value;
+            readerWriterLock = new ReaderWriterLock();
 
             modelConverter = fileExtensionFactoryRetriever.LoadRequiredConverter(this.databaseOptions.DatabaseExtention);
-            readerWriterLock = new ReaderWriterLock();
         }
 
         public bool DeleteFile(string fileName)
@@ -109,17 +111,6 @@ namespace DocumentDatabase.Domain.Repository
             return true;
         }
 
-        private void WriteFile(TModel model, string fullPath)
-        {
-            using (StreamWriter streamWriter = new StreamWriter(fullPath, false))
-                modelConverter.Serialize(streamWriter, model);
-        }
-
-        private void CreateEmptyFolder(string databaseFolderPath)
-        {
-            Directory.CreateDirectory(databaseFolderPath);
-        }
-
         public string CreateFile(TModel fileModel)
         {
             if (fileModel != null)
@@ -130,6 +121,17 @@ namespace DocumentDatabase.Domain.Repository
                 return emptyFile;
             }
             return string.Empty;
+        }
+
+        private void WriteFile(TModel model, string fullPath)
+        {
+            using (StreamWriter streamWriter = new StreamWriter(fullPath, false))
+                modelConverter.Serialize(streamWriter, model);
+        }
+
+        private void CreateEmptyFolder(string databaseFolderPath)
+        {
+            Directory.CreateDirectory(databaseFolderPath);
         }
     }
 }
