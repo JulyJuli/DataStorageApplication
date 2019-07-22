@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DocumentDatabase.Domain.Repository
 {
@@ -37,21 +38,21 @@ namespace DocumentDatabase.Domain.Repository
             modelConverter = fileExtensionFactoryRetriever.LoadRequiredConverter(this.databaseOptions.DatabaseExtention);
         }
 
-        public bool DeleteFile(string fileName)
+        public Task DeleteFile(string fileName)
         {
             string path = fileProcessingHelper.FormFullPath(
                 fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName),
                 fileName,
                 databaseOptions.DatabaseExtention);
-
-            if (!File.Exists(path))
-                return false;
-
-            File.Delete(path);
-            return true;
+            
+            if (File.Exists(path))
+            {
+                return Task.Run(() => File.Delete(path));
+            }
+            return null;
         }
 
-        public void WriteFile(string fileName, TModel model)
+        public async Task WriteFileAsync(string fileName, TModel model)
         {
             string fullFilePath = this.databaseContext.GetFullFilePath(databaseOptions, fileName);
             if (File.Exists(fullFilePath))
@@ -59,7 +60,7 @@ namespace DocumentDatabase.Domain.Repository
                 try
                 {
                     readerWriterLock.AcquireWriterLock(-1);
-                    WriteFile(model, fullFilePath);
+                    await WriteFileAsync(model, fullFilePath);
                 }
                 finally
                 {
@@ -67,7 +68,7 @@ namespace DocumentDatabase.Domain.Repository
                 }
             }
             else
-                WriteFile(model, fullFilePath);
+               await WriteFileAsync(model, fullFilePath);
         }
 
         public IList<TModel> GetAllFiles()
@@ -95,7 +96,7 @@ namespace DocumentDatabase.Domain.Repository
             return fileSet;
         }
 
-        public bool UpdateDatabaseFiles(
+        public async Task UpdateDatabaseFilesAsync(
           string fileName,
           TModel model,
           ModificationType modificationType)
@@ -103,30 +104,28 @@ namespace DocumentDatabase.Domain.Repository
             switch (modificationType)
             {
                 case ModificationType.UPDATE:
-                    WriteFile(fileName, model);
+                    await WriteFileAsync(fileName, model);
                     break;
                 case ModificationType.DELETE:
-                    return DeleteFile(fileName);
+                   await DeleteFile(fileName);
+                   break;
             }
-            return true;
         }
 
-        public string CreateFile(TModel fileModel)
+        public async Task CreateFileAsync(TModel fileModel)
         {
+            string createdFileName = string.Empty;
             if (fileModel != null)
             {
-                string emptyFile = databaseContext.CreateEmptyFile(fileModel.Id, databaseOptions);
-
-                WriteFile(fileModel, emptyFile);
-                return emptyFile;
+                createdFileName = databaseContext.CreateEmptyFile(fileModel.Id, databaseOptions);
+                await WriteFileAsync(fileModel, createdFileName);
             }
-            return string.Empty;
         }
 
-        private void WriteFile(TModel model, string fullPath)
+        private async Task WriteFileAsync(TModel model, string fullPath)
         {
-            using (StreamWriter streamWriter = new StreamWriter(fullPath, false))
-                modelConverter.Serialize(streamWriter, model);
+            using (StreamWriter streamWriter =  new StreamWriter(fullPath))
+                await Task.Run(() => modelConverter.Serialize(streamWriter, model));
         }
 
         private void CreateEmptyFolder(string databaseFolderPath)

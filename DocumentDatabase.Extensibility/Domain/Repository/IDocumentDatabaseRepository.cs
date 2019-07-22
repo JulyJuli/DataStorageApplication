@@ -1,20 +1,21 @@
 ﻿using DocumentDatabase.Extensibility.Helpers;
 using System.Collections.Generic;
 using DocumentDatabase.Extensibility.DTOs;
+using System.Threading.Tasks;
 
 namespace DocumentDatabase.Extensibility.Domain.Repository
 {
     public interface IDocumentDatabaseRepository<TModel>
         where TModel : ModelIdentifier
     {
-        bool DeleteFile(string id);
+        Task DeleteFile(string fileName);
 
-        bool UpdateDatabaseFiles(string id, TModel model, ModificationType modificationType);
+        Task UpdateDatabaseFilesAsync(string id, TModel model, ModificationType modificationType);
 
         IList<TModel> GetAllFiles();
 
-        void WriteFile(string id, TModel model);
+        Task WriteFileAsync(string fileName, TModel model);
 
-        string CreateFile(TModel fileModel);
+        Task CreateFileAsync(TModel fileModel);
     }
 }

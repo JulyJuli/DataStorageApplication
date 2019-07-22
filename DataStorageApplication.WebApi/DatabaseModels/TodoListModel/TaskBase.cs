@@ -8,7 +8,8 @@ namespace DataStorageApplication.WebApi.DatabaseModels.TodoListModel
     {
         public TaskBase() { }
 
-        public TaskBase(string title, string description, bool deleted)
+        public TaskBase(string title, string description, bool deleted, string id)
+            : base(id)
         {
             Title = title;
             Description = description;

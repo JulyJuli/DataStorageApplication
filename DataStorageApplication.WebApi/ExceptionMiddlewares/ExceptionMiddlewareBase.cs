@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace DataStorageApplication.WebApi.ExceptionMiddlewares
 {
-    public class InvalidExtentionExceptionMiddleware
+    public class ExceptionMiddlewareBase
     {
         private readonly RequestDelegate requestDelegate;
 
-        public InvalidExtentionExceptionMiddleware(RequestDelegate requestDelegate)
+        public ExceptionMiddlewareBase(RequestDelegate requestDelegate)
         {
             this.requestDelegate = requestDelegate;
         }
@@ -21,20 +22,23 @@ namespace DataStorageApplication.WebApi.ExceptionMiddlewares
             {
                 await requestDelegate.Invoke(context);
             }
-            catch (InvalidDataException exception)
+            catch (Exception exception)
             {
-                await HandleExceptionAsync(context, exception);
+                if (exception is InvalidDataException || exception is FileNotFoundException)
+                {
+                    await HandleExceptionAsync(context, exception, HttpStatusCode.BadRequest);
+                }
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, InvalidDataException exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode httpStatusCode)
         {
             var response = context.Response;
-            var statusCode = (int)HttpStatusCode.InternalServerError;
+            var statusCode = (int)httpStatusCode;
 
             response.ContentType = "application/json";
             response.StatusCode = statusCode;
-            await response.WriteAsync(JsonConvert.SerializeObject( exception.Message));
+            await response.WriteAsync(JsonConvert.SerializeObject(exception.Message));
         }
     }
 }

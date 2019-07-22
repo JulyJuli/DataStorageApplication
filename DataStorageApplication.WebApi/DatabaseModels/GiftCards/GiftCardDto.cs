@@ -6,7 +6,8 @@ namespace DataStorageApplication.WebApi.DatabaseModels.GiftCards
     {
         internal GiftCardDto() { }
 
-        public GiftCardDto(string recepientName, string senderName, PriceType priceType)
+        public GiftCardDto(string recepientName, string senderName, PriceType priceType, string Id)
+            : base(Id)
         {
             RecepientName = recepientName;
             SenderName = senderName;

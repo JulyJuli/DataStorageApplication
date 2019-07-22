@@ -6,7 +6,8 @@ namespace DataStorageApplication.TestProject.DatabaseModels.GiftCards
     {
         internal GiftCardDto() { }
 
-        public GiftCardDto(string recepientName, string senderName, PriceType priceType)
+        public GiftCardDto(string recepientName, string senderName, PriceType priceType, string id)
+            : base(id)
         {
             RecepientName = recepientName;
             SenderName = senderName;

@@ -35,7 +35,7 @@ namespace DataStorageApplication.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMiddleware<InvalidExtentionExceptionMiddleware>();
+            app.UseMiddleware<ExceptionMiddlewareBase>();
             app.UseMvc();
         }
     }

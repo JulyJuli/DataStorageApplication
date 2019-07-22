@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DataStorageApplication.WebApi.DatabaseModels.GiftCards;
 using DocumentDatabase.Extensibility.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +26,6 @@ namespace DataStorageApplication.WebApi.Controllers
         {
             return fileService.Get(fileName);
         }
-
 
         [HttpPost]
         public string Post([FromBody]GiftCardDto fileModel)

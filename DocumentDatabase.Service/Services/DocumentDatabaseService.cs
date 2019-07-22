@@ -4,6 +4,7 @@ using DocumentDatabase.Extensibility.Service;
 using System.Collections.Generic;
 using System.Linq;
 using DocumentDatabase.Extensibility.DTOs;
+using System.IO;
 
 namespace DocumentDatabase.Service.Services
 {
@@ -17,7 +18,7 @@ namespace DocumentDatabase.Service.Services
         public DocumentDatabaseService(IDocumentDatabaseRepository<TModel> fileRepository)
         {
             this.fileRepository = fileRepository;
-            databaseFiles = new List<TModel>();
+            databaseFiles = fileRepository.GetAllFiles();
         }
 
         public TModel Get(string fileName)
@@ -27,20 +28,27 @@ namespace DocumentDatabase.Service.Services
 
         public string Create(TModel fileModel)
         {
-            string filePath = fileRepository.CreateFile(fileModel);
-            if (fileModel != null && !string.IsNullOrEmpty(filePath))
+            if (fileModel == null)
+            {
+                throw new InvalidDataException("Input model is empty. Please check source data.");
+            }
+            else {
                 databaseFiles.Add(fileModel);
-            return filePath;
+                fileRepository.CreateFileAsync(fileModel);
+                return fileModel.Id;
+            }       
         }
 
         public bool Delete(string fileName)
         {
             TModel model = GetDatabaseFile(fileName);
-            if (model == null || !this.fileRepository.UpdateDatabaseFiles(fileName, model, ModificationType.DELETE))
-                return false;
-
-            databaseFiles.Remove(model);
-            return true;
+            if (model != null)
+            {
+                databaseFiles.Remove(model);
+                fileRepository.UpdateDatabaseFilesAsync(fileName, model, ModificationType.DELETE);
+                return true;
+            }
+            return false;
         }
 
         public bool Update(string fileName, TModel model)
@@ -48,20 +56,29 @@ namespace DocumentDatabase.Service.Services
             TModel existingModel = GetDatabaseFile(fileName);
             if (existingModel == null || model == null)
                 return false;
+            else
+            {
+                databaseFiles.Remove(existingModel);
+                databaseFiles.Add(model);
 
-            fileRepository.WriteFile(fileName, model);
-            databaseFiles.Add(model);
-            return true;
+                fileRepository.WriteFileAsync(fileName, model);
+                return true;
+            }
         }
 
         public IList<TModel> GetAll()
         {
-            this.databaseFiles = fileRepository.GetAllFiles();
             return databaseFiles;
         }
 
         private TModel GetDatabaseFile(string fileName) {
-           return databaseFiles.FirstOrDefault(file => file.Id == fileName);
+           var foundFile = databaseFiles.FirstOrDefault(file => file.Id == fileName);
+            if (foundFile == null)
+            {
+                throw new FileNotFoundException("requested file not found.");
+            }
+            else
+                return foundFile;
         }
     }
 }

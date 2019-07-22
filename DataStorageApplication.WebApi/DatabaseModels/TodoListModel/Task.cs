@@ -6,8 +6,8 @@ namespace DataStorageApplication.WebApi.DatabaseModels.TodoListModel
     public class Task : TaskBase
     {
         public Task() { }
-        public Task(string title, string description, bool deleted, bool completed, DateTime dueDate, string comment)
-            : base(title, description, deleted)
+        public Task(string title, string description, bool deleted, bool completed, DateTime dueDate, string comment, string id)
+            : base(title, description, deleted, id)
         {
             Completed = completed;
             DueDate = dueDate;
