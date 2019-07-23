@@ -73,12 +73,11 @@ namespace DocumentDatabase.Domain.Repository
 
         public IList<TModel> GetAllFiles()
         {
-            return ReadAllExistingFiles(fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName));
+            return ReadAllExistingFilesAsync(fileProcessingHelper.GetPathToDestinationFolder(databaseOptions.DatabaseExtention, typeof(TModel).Name, databaseOptions.FolderName)).Result;
         }
 
-        private IList<TModel> ReadAllExistingFiles(string databaseFolderPath)
+        private async Task<IList<TModel>> ReadAllExistingFilesAsync(string databaseFolderPath)
         {
-
             var fileSet = new List<TModel>();
             if (Directory.Exists(databaseFolderPath))
             {
@@ -86,8 +85,8 @@ namespace DocumentDatabase.Domain.Repository
                 {
                     using (StreamReader streamReader = new StreamReader(enumerateFile))
                     {
-                        TModel model = this.modelConverter.Deserialize(streamReader);
-                        fileSet.Add( model);
+                        TModel model = await Task.Run(() => modelConverter.Deserialize(streamReader));
+                        fileSet.Add(model);
                     }
                 }
             }
