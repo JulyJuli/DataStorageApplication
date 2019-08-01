@@ -18,7 +18,6 @@ namespace DocumentDatabase.Module
     {
         public static IServiceCollection ConfigureDocumentDatabase(this IServiceCollection services)
         {
-            services.AddOptions();
             return services
                     .AddTransient(typeof(IDocumentDatabaseRepository<>), typeof(DocumentDatabaseRepository<>))
                     .AddSingleton(typeof(IDatabaseContext<>), typeof(DatabaseContext<>))

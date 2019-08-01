@@ -24,7 +24,7 @@ namespace DataStorageApplication.WebApi.ExceptionMiddlewares
             }
             catch (Exception exception)
             {
-                if (exception is InvalidDataException || exception is FileNotFoundException)
+                if (exception is InvalidDataException || exception is FileNotFoundException || exception is Exception)
                 {
                     await HandleExceptionAsync(context, exception, HttpStatusCode.BadRequest);
                 }

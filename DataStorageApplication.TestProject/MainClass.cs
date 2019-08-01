@@ -22,7 +22,7 @@ namespace DataStorageApplication.TestProject
 
                 var databaseConfiguration = serviceProvider.GetService<IDocumentDatabaseService<Task>>();
 
-                var firstModel = databaseConfiguration.Create(new Task("first task", "test description", false, false, new DateTime().Date, "comment"));
+                var firstModel = databaseConfiguration.Create(new Task("first task", "test description", false, false, new DateTime().Date, "comment", null));
                 var allFiles = databaseConfiguration.GetAll();
             }
             catch(InvalidDataException exception) {

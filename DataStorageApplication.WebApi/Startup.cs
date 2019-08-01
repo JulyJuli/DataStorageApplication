@@ -1,11 +1,14 @@
 ﻿using DataStorageApplication.WebApi.ExceptionMiddlewares;
 using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Module;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DataStorageApplication.WebApi
 {
@@ -21,11 +24,17 @@ namespace DataStorageApplication.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<DatabaseOptions>(Configuration.GetSection("DatabaseConfiguration"));
-            services.ConfigureDocumentDatabase();
+           services.AddOptions();
+           services.Configure<DatabaseOptions>(Configuration.GetSection("DatabaseConfiguration"));
+           var securityKey = Configuration.GetSection("Security:SecurityKey").Value;
+           services.Configure<Security>(option => option.SecurityKey = securityKey);
 
-            services.AddMvc();
+           services.ConfigureDocumentDatabase();
+           ConfigureAuthorization(services, securityKey);
+
+           services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -36,7 +45,31 @@ namespace DataStorageApplication.WebApi
             }
 
             app.UseMiddleware<ExceptionMiddlewareBase>();
+            app.UseAuthentication();
             app.UseMvc();
+        }
+
+        private void ConfigureAuthorization(IServiceCollection services, string secretKey)
+        {
+            var encodedkey = Encoding.ASCII.GetBytes(secretKey);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+           .AddJwtBearer(options =>
+           {
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuer = true,
+                   ValidateAudience = true,
+                   ValidateLifetime = true,
+                   ValidateIssuerSigningKey = true,
+                   ValidIssuer = "http://localhost:59555",
+                   ValidAudience = "http://localhost:59555",
+                   IssuerSigningKey = new SymmetricSecurityKey(encodedkey)
+               };
+           });
         }
     }
 }

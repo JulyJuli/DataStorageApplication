@@ -10,8 +10,8 @@
             FolderName = folderName;
         }
 
-        public string DatabaseExtention {get; set;}
+        public string DatabaseExtention { get; set; }
 
-        public string FolderName {get; set;}
+        public string FolderName { get; set; }
     }
 }

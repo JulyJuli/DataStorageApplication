@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using DataStorageApplication.WebApi.DatabaseModels.GiftCards;
 using DocumentDatabase.Extensibility.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DataStorageApplication.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    public class DataStoreApplicationController: Controller
+    public class DataStoreApplicationController: ControllerBase
     {
         private readonly IDocumentDatabaseService<GiftCardDto> fileService;
 
@@ -15,7 +16,7 @@ namespace DataStorageApplication.WebApi.Controllers
             this.fileService = fileService;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IList<GiftCardDto> GetAll()
         {
             return fileService.GetAll();
