@@ -1,5 +1,5 @@
-﻿using DataStorageApplication.WebApi.DatabaseModels.LoginModels;
-using DocumentDatabase.Extensibility.DTOs;
+﻿using Authorization.Extensibility.LoginModels;
+using Authorization.Extensibility.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -16,21 +16,23 @@ namespace DataStorageApplication.WebApi.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly Security secret;
+        private readonly IAuthorizationProvider authorizationProvider;
 
-        public AuthorizationController(IOptions<Security> secretKey)
+        public AuthorizationController(IOptions<Security> secretKey, IAuthorizationProvider authorizationProvider)
         {
             secret = secretKey.Value;
+            this.authorizationProvider = authorizationProvider;
         }
 
         [HttpPost, Route("login")]
-        public IActionResult Login([FromBody]LoginDTO user)
+        public IActionResult Login([FromBody]UserDTO user)
         {
             if (user == null)
             {
                 return BadRequest("Invalid request");
             }
 
-            if (user.UserName == "johncitizen" && user.Password == "abc@123")
+            if (authorizationProvider.CheckUserCredentials(user))
             {
                 SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret.SecurityKey));
                 var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
@@ -49,6 +51,21 @@ namespace DataStorageApplication.WebApi.Controllers
             else
             {
                 return Unauthorized();
+            }
+        }
+
+        [HttpPost, Route("register")]
+        public IActionResult Register([FromBody]UserDTO user)
+        {
+            if (user == null)
+            {
+                return BadRequest("Invalid request");
+            }
+      
+            else
+            {
+                authorizationProvider.Create(user);
+                return Ok();
             }
         }
     }

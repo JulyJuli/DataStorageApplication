@@ -1,4 +1,5 @@
-﻿using DataStorageApplication.WebApi.ExceptionMiddlewares;
+﻿using Authorization.Module;
+using DataStorageApplication.WebApi.ExceptionMiddlewares;
 using DocumentDatabase.Extensibility.DTOs;
 using DocumentDatabase.Module;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,17 +25,16 @@ namespace DataStorageApplication.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           services.AddOptions();
            services.Configure<DatabaseOptions>(Configuration.GetSection("DatabaseConfiguration"));
            var securityKey = Configuration.GetSection("Security:SecurityKey").Value;
            services.Configure<Security>(option => option.SecurityKey = securityKey);
 
            services.ConfigureDocumentDatabase();
+           services.ConfigureUserCredentialDatabase(Configuration);
            ConfigureAuthorization(services, securityKey);
 
            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
-
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
