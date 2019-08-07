@@ -22,25 +22,25 @@ namespace DataStorageApplication.WebApi.Controllers
             return fileService.GetAll();
         }
 
-        [HttpGet("{fileName}")]
+        [HttpGet("{fileName}"), Authorize]
         public GiftCardDto Get(string fileName)
         {
             return fileService.Get(fileName);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public string Post([FromBody]GiftCardDto fileModel)
         {
             return fileService.Create(fileModel);
         }
 
-        [HttpPut("{fileName}")]
+        [HttpPut("{fileName}"), Authorize]
         public void Put(string fileName, [FromBody]GiftCardDto category)
         {
             fileService.Update(fileName, category);
         }
 
-        [HttpDelete("{fileName}")]
+        [HttpDelete("{fileName}"), Authorize]
         public bool Delete(string fileName)
         {
             return fileService.Delete(fileName);

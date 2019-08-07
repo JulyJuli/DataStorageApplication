@@ -60,8 +60,7 @@ namespace DataStorageApplication.WebApi.Controllers
             if (user == null)
             {
                 return BadRequest("Invalid request");
-            }
-      
+            }     
             else
             {
                 authorizationProvider.Create(user);
